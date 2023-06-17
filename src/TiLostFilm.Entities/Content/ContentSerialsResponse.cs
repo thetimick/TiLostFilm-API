@@ -1,34 +1,34 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 // ReSharper disable ClassNeverInstantiated.Global
 
 namespace TiLostFilm.Entities.Content;
 
 public record ContentSerialsResponse(
-    [property: JsonPropertyName("data")] IReadOnlyList<SerialData> Data,
-    [property: JsonPropertyName("result")] string Result
+    [property: JsonProperty("data")] List<SerialData>? Data,
+    [property: JsonProperty("result")] string? Result
 );
-    
+
 public record SerialData(
-    [property: JsonPropertyName("rating")] double? Rating,
-    [property: JsonPropertyName("title")] string Title,
-    [property: JsonPropertyName("title_orig")] string TitleOrig,
-    [property: JsonPropertyName("date")] string Date,
-    [property: JsonPropertyName("link")] string Link,
-    [property: JsonPropertyName("alias")] string Alias,
-    [property: JsonPropertyName("not_favorited")] bool? NotFavorited,
-    [property: JsonPropertyName("id")] string Id,
-    [property: JsonPropertyName("has_icon")] string HasIcon,
-    [property: JsonPropertyName("has_image")] bool? HasImage,
-    [property: JsonPropertyName("img")] string Img,
-    [property: JsonPropertyName("genres")] string Genres,
-    [property: JsonPropertyName("channels")] string Channels,
-    [property: JsonPropertyName("status")] object Status,
-    [property: JsonPropertyName("status_7")] bool? Status7,
-    [property: JsonPropertyName("status_auto")] int? StatusAuto,
-    [property: JsonPropertyName("status_auto_5")] bool? StatusAuto5,
-    [property: JsonPropertyName("status_season")] string StatusSeason,
-    [property: JsonPropertyName("status_5")] bool? Status5,
-    [property: JsonPropertyName("status_auto_2")] bool? StatusAuto2,
-    [property: JsonPropertyName("status_auto_1")] bool? StatusAuto1
+    [property: JsonProperty("rating")] double? Rating,
+    [property: JsonProperty("title")] string? Title,
+    [property: JsonProperty("title_orig")] string? TitleOrig,
+    [property: JsonProperty("date")] string? Date,
+    [property: JsonProperty("link")] string? Link,
+    [property: JsonProperty("alias")] string? Alias,
+    [property: JsonProperty("not_favorited")] bool? NotFavorited,
+    [property: JsonProperty("id")] string? Id,
+    [property: JsonProperty("has_icon")] string? HasIcon,
+    [property: JsonProperty("has_image")] bool? HasImage,
+    [property: JsonProperty("img")] string? Img,
+    [property: JsonProperty("genres")] string? Genres,
+    [property: JsonProperty("channels")] string? Channels,
+    [property: JsonProperty("status")] string? Status,
+    [property: JsonProperty("status_7")] bool? Status7,
+    [property: JsonProperty("status_auto")] int? StatusAuto,
+    [property: JsonProperty("status_auto_5")] bool? StatusAuto5,
+    [property: JsonProperty("status_season")] string? StatusSeason,
+    [property: JsonProperty("status_5")] bool? Status5,
+    [property: JsonProperty("status_auto_2")] bool? StatusAuto2,
+    [property: JsonProperty("status_auto_1")] bool? StatusAuto1
 );

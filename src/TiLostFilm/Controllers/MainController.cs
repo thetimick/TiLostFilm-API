@@ -6,18 +6,17 @@ using TiLostFirm.Parser;
 namespace TiLostFilm.Controllers;
 
 [ApiController]
-[ApiVersion("1.0")]
 [Route("[controller]")]
 [Produces("application/json")]
 public class MainController: ControllerBase
 {
     private readonly ILogger<MainController> _logger;
-    private readonly LostFilmParser _lostFilmParser;
+    private readonly MainService _mainService;
 
-    public MainController(ILogger<MainController> logger, LostFilmParser lostFilmParser)
+    public MainController(ILogger<MainController> logger, MainService mainService)
     {
         _logger = logger;
-        _lostFilmParser = lostFilmParser;
+        _mainService = mainService;
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -27,7 +26,7 @@ public class MainController: ControllerBase
     {
         try
         {
-            return new ActionResult<MainEntity>(await _lostFilmParser.Main.GetMain());
+            return new ActionResult<MainEntity>(await _mainService.GetMain());
         }
         catch (Exception ex)
         {

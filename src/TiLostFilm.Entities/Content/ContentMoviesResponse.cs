@@ -1,27 +1,27 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 // ReSharper disable ClassNeverInstantiated.Global
 
 namespace TiLostFilm.Entities.Content;
 
 public record ContentMoviesResponse(
-    [property: JsonPropertyName("data")] IReadOnlyList<MovieData> Data,
-    [property: JsonPropertyName("result")] string Result
+    [property: JsonProperty("data")] List<MovieData> Data,
+    [property: JsonProperty("result")] string Result
 );
 
 public record MovieData(
-    [property: JsonPropertyName("rating")] double? Rating,
-    [property: JsonPropertyName("title")] string Title,
-    [property: JsonPropertyName("title_orig")] string TitleOrig,
-    [property: JsonPropertyName("date")] string Date,
-    [property: JsonPropertyName("link")] string Link,
-    [property: JsonPropertyName("ismovie")] string IsMovie,
-    [property: JsonPropertyName("alias")] string Alias,
-    [property: JsonPropertyName("not_favorited")] bool? NotFavorited,
-    [property: JsonPropertyName("id")] string Id,
-    [property: JsonPropertyName("has_icon")] string HasIcon,
-    [property: JsonPropertyName("has_image")] bool? HasImage,
-    [property: JsonPropertyName("img")] string Img,
-    [property: JsonPropertyName("genres")] string Genres,
-    [property: JsonPropertyName("channels")] string Channels
+    [property: JsonProperty("rating")] double? Rating,
+    [property: JsonProperty("title")] string Title,
+    [property: JsonProperty("title_orig")] string TitleOrig,
+    [property: JsonProperty("date")] string Date,
+    [property: JsonProperty("link")] string Link,
+    [property: JsonProperty("ismovie")] string IsMovie,
+    [property: JsonProperty("alias")] string Alias,
+    [property: JsonProperty("not_favorited")] bool? NotFavorited,
+    [property: JsonProperty("id")] string Id,
+    [property: JsonProperty("has_icon")] string HasIcon,
+    [property: JsonProperty("has_image")] bool? HasImage,
+    [property: JsonProperty("img")] string Img,
+    [property: JsonProperty("genres")] string Genres,
+    [property: JsonProperty("channels")] string Channels
 );

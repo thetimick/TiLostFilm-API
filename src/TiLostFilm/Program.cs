@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.OpenApi.Models;
 using TiLostFilm.DataBase;
 using TiLostFirm.Parser;
@@ -8,20 +6,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-
-// builder.Services.AddApiVersioning(config =>
-// {
-//     config.DefaultApiVersion = new ApiVersion(1,0);
-//     config.AssumeDefaultVersionWhenUnspecified = true;
-//     config.ReportApiVersions = true;
-//     config.ApiVersionReader = new HeaderApiVersionReader("x-api-version");
-// });
-//
-// builder.Services.AddVersionedApiExplorer(config =>
-// {
-//     config.GroupNameFormat = "'v'VVV";
-//     config.SubstituteApiVersionInUrl = true;
-// });
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -39,7 +23,10 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddSingleton<LostFilmDataBase>();
-builder.Services.AddSingleton<LostFilmParser>();
+
+builder.Services.AddSingleton<ContentService>();
+builder.Services.AddSingleton<EpisodeService>();
+builder.Services.AddSingleton<MainService>();
 
 var app = builder.Build();
 

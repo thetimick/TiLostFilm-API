@@ -1,11 +1,17 @@
-﻿using Ardalis.GuardClauses;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
+using Ardalis.GuardClauses;
 using HtmlAgilityPack;
+using Microsoft.Extensions.Logging;
 using TiLostFilm.Entities.Episode;
 using TiLostFirm.Preferences;
 
-namespace TiLostFirm.Parser.Services;
+namespace TiLostFirm.Parser;
 
-public partial class EpisodeService
+[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
+[SuppressMessage("Performance", "CA1822:Пометьте члены как статические")]
+[SuppressMessage("Performance", "SYSLIB1045:Преобразовать в \"GeneratedRegexAttribute\".")]
+public class EpisodeService
 {
     private static class Paths
     {
@@ -21,7 +27,13 @@ public partial class EpisodeService
         public const string Description = "/html/body/div[3]/div[2]/div[1]/div[1]/div[6]/div[2]/div[1]";
     }
 
-    // ReSharper disable once MemberCanBeMadeStatic.Global
+    private readonly ILogger<EpisodeService> _logger;
+
+    public EpisodeService(ILogger<EpisodeService> logger)
+    {
+        _logger = logger;
+    }
+    
     public async Task<EpisodeEntity> GetEpisode(string url)
     {
         var html = await new HtmlWeb().LoadFromWebAsync(Prefs.BaseUrl + url);
@@ -56,29 +68,31 @@ public partial class EpisodeService
 
         var descriptionNode = html.DocumentNode
             .SelectSingleNode(Paths.Description);
-        
+
         return new EpisodeEntity(
-            seasonNumberNode.InnerText, 
+            seasonNumberNode.InnerText,
             episodeNumberNode.InnerText,
             titleNode.InnerText,
             titleOrigNode.InnerText,
             $"https:{posterUrlNode.Attributes["src"].Value}",
             double.Parse(ratingNode.InnerText.Replace(".", ",")),
-            dateReleaseRuNode is null 
-                ? null 
-                : ClearInnerText().Replace($"{dateReleaseRuNode.InnerText} г.", string.Empty),
-            durationNode is null 
-                ? null 
-                : ClearInnerText().Replace(durationNode.InnerText, string.Empty).Trim(),
-            ratingIMDbNode is null 
-                ? null 
-                : ClearInnerText().Replace(ratingIMDbNode.InnerText, string.Empty).Trim(),
-            descriptionNode is null 
+            dateReleaseRuNode is null
                 ? null
-                : ClearInnerText().Replace(descriptionNode.InnerText, string.Empty).Trim()
+                : ClearInnerText($"{dateReleaseRuNode.InnerText} г."),
+            durationNode is null
+                ? null
+                : ClearInnerText(durationNode.InnerText).Trim(),
+            ratingIMDbNode is null
+                ? null
+                : ClearInnerText(ratingIMDbNode.InnerText).Trim(),
+            descriptionNode is null
+                ? null
+                : ClearInnerText(descriptionNode.InnerText).Trim()
         );
     }
 
-    [System.Text.RegularExpressions.GeneratedRegex(@"(?:\r\n|\n|\r|\t)")]
-    private static partial System.Text.RegularExpressions.Regex ClearInnerText();
+    private static string ClearInnerText(string text)
+    {
+        return new Regex(@"(?:\r\n|\n|\r|\t)").Replace(text, string.Empty);
+    }
 }

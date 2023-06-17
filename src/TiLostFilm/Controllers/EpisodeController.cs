@@ -7,18 +7,17 @@ using TiLostFirm.Parser;
 namespace TiLostFilm.Controllers;
 
 [ApiController]
-[ApiVersion("1.0")]
 [Route("[controller]")]
 [Produces("application/json")]
 public class EpisodeController: ControllerBase
 {
     private readonly ILogger<EpisodeController> _logger;
-    private readonly LostFilmParser _lostFilmParser;
+    private readonly EpisodeService _episodeService;
 
-    public EpisodeController(ILogger<EpisodeController> logger, LostFilmParser lostFilmParser)
+    public EpisodeController(ILogger<EpisodeController> logger, EpisodeService episodeService)
     {
         _logger = logger;
-        _lostFilmParser = lostFilmParser;
+        _episodeService = episodeService;
     }
     
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -30,7 +29,7 @@ public class EpisodeController: ControllerBase
         {
             return url is null 
                 ? new UnprocessableEntityResult() 
-                : new ActionResult<EpisodeEntity>(await _lostFilmParser.Episode.GetEpisode(url));
+                : new ActionResult<EpisodeEntity>(await _episodeService.GetEpisode(url));
         }
         catch (Exception ex)
         {

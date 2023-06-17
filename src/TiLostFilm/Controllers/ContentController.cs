@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Ardalis.GuardClauses;
+﻿using Ardalis.GuardClauses;
 using Microsoft.AspNetCore.Mvc;
+using RestSharp;
 using TiLostFilm.Entities.Content;
 using TiLostFilm.Entities.Error;
 using TiLostFirm.Parser;
@@ -8,18 +8,17 @@ using TiLostFirm.Parser;
 namespace TiLostFilm.Controllers;
 
 [ApiController]
-[ApiVersion("1.0")]
 [Route("[controller]")]
 [Produces("application/json")]
 public class ContentController: ControllerBase
 {
     private readonly ILogger<ContentController> _logger;
-    private readonly LostFilmParser _lostFilmParser;
+    private readonly ContentService _contentService;
 
-    public ContentController(ILogger<ContentController> logger, LostFilmParser lostFilmParser)
+    public ContentController(ILogger<ContentController> logger, ContentService contentService)
     {
         _logger = logger;
-        _lostFilmParser = lostFilmParser;
+        _contentService = contentService;
     }
     
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -29,10 +28,9 @@ public class ContentController: ControllerBase
     {
         try
         {
-            var response = await _lostFilmParser.Content.ObtainSerials(offset);
-            Guard.Against.Null(response);
-            
-            return response;
+            var response = await _contentService.ObtainSerials(offset);
+            Guard.Against.Null(response.Data);
+            return response.Data;
         }
         catch (Exception ex)
         {
@@ -48,10 +46,9 @@ public class ContentController: ControllerBase
     {
         try
         {
-            var response = await _lostFilmParser.Content.ObtainMovies(offset);
-            Guard.Against.Null(response);
-            
-            return response;
+            var response = await _contentService.ObtainMovies(offset);
+            Guard.Against.Null(response.Data);
+            return response.Data;
         }
         catch (Exception ex)
         {

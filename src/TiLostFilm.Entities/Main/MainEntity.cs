@@ -1,5 +1,7 @@
 ﻿namespace TiLostFilm.Entities.Main;
 
+// ReSharper disable ClassNeverInstantiated.Global
+
 public record MainEntity(
     List<MainSerial> NewSerials,
     List<MainEpisode> NewEpisodes,

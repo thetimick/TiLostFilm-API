@@ -9,7 +9,10 @@
     <ItemGroup>
       <PackageReference Include="Ardalis.GuardClauses" Version="4.0.1" />
       <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0-preview.5.23280.8" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="RestSharp" Version="110.2.1-alpha.0.3" />
+      <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.1-alpha.0.3" />
     </ItemGroup>
 
     <ItemGroup>
