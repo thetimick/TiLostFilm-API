@@ -27,6 +27,7 @@ builder.Services.AddSingleton<LostFilmDataBase>();
 builder.Services.AddSingleton<ContentService>();
 builder.Services.AddSingleton<EpisodeService>();
 builder.Services.AddSingleton<MainService>();
+builder.Services.AddSingleton<SheduleService>();
 
 var app = builder.Build();
 

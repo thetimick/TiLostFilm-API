@@ -1,6 +1,5 @@
 ﻿using Ardalis.GuardClauses;
 using Microsoft.AspNetCore.Mvc;
-using RestSharp;
 using TiLostFilm.Entities.Content;
 using TiLostFilm.Entities.Error;
 using TiLostFirm.Parser;

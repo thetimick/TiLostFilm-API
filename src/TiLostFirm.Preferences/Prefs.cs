@@ -2,5 +2,5 @@
 
 public static class Prefs
 {
-    public const string BaseUrl = @"https://www.lostfilm.today";
+    public const string BaseUrl = "https://www.lostfilm.today";
 }
