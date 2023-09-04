@@ -22,7 +22,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddSingleton<LostFilmDataBase>();
+builder.Services.AddSingleton<DataBase>();
 
 builder.Services.AddSingleton<ContentService>();
 builder.Services.AddSingleton<EpisodeService>();

@@ -1,9 +1,9 @@
-﻿using System.Text.RegularExpressions;
-using AngleSharp;
+﻿using AngleSharp;
 using AngleSharp.Dom;
+using AngleSharp.Io;
 using Ardalis.GuardClauses;
-using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
+using TiLostFilm.DataBase;
 using TiLostFilm.Entities.Shedule;
 using TiLostFirm.Preferences;
 
@@ -17,20 +17,20 @@ public class SheduleService
     }
     
     private readonly ILogger<SheduleService> _logger;
+    private readonly DataBase _db;
 
-    public SheduleService(ILogger<SheduleService> logger)
+    public SheduleService(ILogger<SheduleService> logger, DataBase db)
     {
         _logger = logger;
+        _db = db;
     }
 
     public async Task<SheduleEntity> GetShedule()
     {
-        _logger.LogInformation("GetShedule");
+        _logger.LogInformation("SheduleService => GetShedule");
 
-        var context = new BrowsingContext(Configuration.Default.WithDefaultLoader());
-        
-        var document = await context.OpenAsync(new Url(Prefs.BaseUrl + "/schedule/my_0/type_0"));
-        Guard.Against.Null(document);
+        var data = await _db.FetchDocument(DataBase.Type.Shedule);
+        var document = await BrowsingContext.New(Configuration.Default).OpenAsync(req => req.Content(data));
         
         var entity = new SheduleEntity(
             new SheduleData(
@@ -105,10 +105,5 @@ public class SheduleService
         }
         
         return entity;
-    }
-    
-    private static string ClearInnerText(string text)
-    {
-        return new Regex(@"(?:\r\n|\n|\r|\t)").Replace(text, string.Empty);
     }
 }

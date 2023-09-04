@@ -9,7 +9,6 @@
     <ItemGroup>
       <PackageReference Include="AngleSharp" Version="1.0.4" />
       <PackageReference Include="Ardalis.GuardClauses" Version="4.1.1" />
-      <PackageReference Include="HtmlAgilityPack" Version="1.11.52" />
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0-preview.7.23375.6" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="RestSharp" Version="110.2.1-alpha.0.11" />
@@ -17,6 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\TiLostFilm.DataBase\TiLostFilm.DataBase.csproj" />
       <ProjectReference Include="..\TiLostFilm.Entities\TiLostFilm.Entities.csproj" />
       <ProjectReference Include="..\TiLostFirm.Preferences\TiLostFirm.Preferences.csproj" />
     </ItemGroup>
