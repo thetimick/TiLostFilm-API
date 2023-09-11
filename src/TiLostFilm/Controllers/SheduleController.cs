@@ -1,15 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TiLostFilm.Entities.Episode;
 using TiLostFilm.Entities.Error;
 using TiLostFilm.Entities.Shedule;
 using TiLostFirm.Parser;
+
+// ReSharper disable UnusedMember.Global
 
 namespace TiLostFilm.Controllers;
 
 [ApiController]
 [Route("[controller]")]
 [Produces("application/json")]
-public class SheduleController
+public class SheduleController: ControllerBase
 {
     private readonly ILogger<SheduleController> _logger;
     private readonly SheduleService _sheduleService;

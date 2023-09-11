@@ -1,4 +1,6 @@
-﻿using AngleSharp;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
+using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Io;
 using Ardalis.GuardClauses;
@@ -9,13 +11,16 @@ using TiLostFirm.Preferences;
 
 namespace TiLostFirm.Parser;
 
-public class SheduleService
+public partial class SheduleService
 {
     private static class Paths
     {
         public const string Body = "#left-pane > div > div.content > div > table > tbody";    
-    }
-    
+    } 
+}
+
+public partial class SheduleService
+{
     private readonly ILogger<SheduleService> _logger;
     private readonly DataBase _db;
 
@@ -27,12 +32,13 @@ public class SheduleService
 
     public async Task<SheduleEntity> GetShedule()
     {
-        _logger.LogInformation("SheduleService => GetShedule");
+        _logger.LogInformation("GetShedule");
 
         var data = await _db.FetchDocument(DataBase.Type.Shedule);
-        var document = await BrowsingContext.New(Configuration.Default).OpenAsync(req => req.Content(data));
+        var document = await BrowsingContext.New(Configuration.Default).OpenAsync(req => req.Content(data.Content));
         
         var entity = new SheduleEntity(
+            data.TimeStamp,
             new SheduleData(
                 new List<SheduleDataItem>(),
                 new List<SheduleDataItem>(),
@@ -59,51 +65,115 @@ public class SheduleService
                 continue;
             }
 
-            foreach (var item in section.ChildNodes)
+            var sheduleDataItem = ParseFromNode(section);
+            if (sheduleDataItem is null)
             {
-                var cover = item.ChildNodes.QuerySelector("td.alpha > div > div.cover > img")?.Attributes["src"]?.Value;
-                if (cover == null)
-                {
-                    continue;
-                }
-                var titleRu = item.ChildNodes.QuerySelector("td.alpha > div > div.title-block > div.ru")?.Text();
-                var titleEn = item.ChildNodes.QuerySelector("td.alpha > div > div.title-block > div.en.small-text")?.Text();
-                var episodeTitleEn = item.ChildNodes.QuerySelector("td.gamma")?.Text();
-                var releaseDate = item.ChildNodes.QuerySelector("td.delta")?.Text();
+                continue;
+            }
                 
-                var sheduleDataItem = new SheduleDataItem(
-                    $"https:{cover}",
-                    new SheduleSerialTitle(titleRu, titleEn),
-                    new SheduleEpisodeNumber(-1, -1),
-                    new SheduleEpisodeTitle(null, episodeTitleEn),
-                    releaseDate
-                );
-
-                switch (sectionIndex)
-                {
-                    case 0:
-                        entity.Data?.Today?.Add(sheduleDataItem);
-                        break;
+            switch (sectionIndex)
+            {
+                case 0:
+                    entity.Data?.Today?.Add(sheduleDataItem);
+                    break;
                     
-                    case 1:
-                        entity.Data?.Tomorrow?.Add(sheduleDataItem);
-                        break;
+                case 1:
+                    entity.Data?.Tomorrow?.Add(sheduleDataItem);
+                    break;
                     
-                    case 2:
-                        entity.Data?.OnThisWeek?.Add(sheduleDataItem);
-                        break;
+                case 2:
+                    entity.Data?.OnThisWeek?.Add(sheduleDataItem);
+                    break;
                     
-                    case 3:
-                        entity.Data?.OnNextWeek?.Add(sheduleDataItem);
-                        break;
+                case 3:
+                    entity.Data?.OnNextWeek?.Add(sheduleDataItem);
+                    break;
                     
-                    case 4:
-                        entity.Data?.Future?.Add(sheduleDataItem);
-                        break;
-                }
+                case 4:
+                    entity.Data?.Future?.Add(sheduleDataItem);
+                    break;
             }
         }
         
         return entity;
     }
 }
+
+#region Private Methods
+public partial class SheduleService
+{
+    private static SheduleDataItem? ParseFromNode(INode node) 
+    {
+        var cover = node.ChildNodes.QuerySelector("td.alpha > div > div.cover > img")?.Attributes["src"]?.Value;
+        if (cover is null)
+        {
+            return null;
+        }
+        
+        var titleRu = node.ChildNodes.QuerySelector("td.alpha > div > div.title-block > div.ru")?.Text();
+        var titleEn = node.ChildNodes.QuerySelector("td.alpha > div > div.title-block > div.en.small-text")?.Text();
+        var episodeNumber = node.ChildNodes.QuerySelector("td.beta > div > div")?.Text();
+        var episodeTitleEn = node.ChildNodes.QuerySelector("td.gamma")?.Text();
+        var releaseDate = node.ChildNodes.QuerySelector("td.delta")?.Text();
+        
+        return new SheduleDataItem(
+            $"https:{cover}",
+            new SheduleSerialTitle(titleRu, titleEn),
+            ParseEpisodeNumber(episodeNumber),
+            new SheduleEpisodeTitle(null, episodeTitleEn),
+            ParseReleaseDate(releaseDate)
+        );
+    }
+    
+    private static SheduleEpisodeNumber? ParseEpisodeNumber(string? input)
+    {
+        if (input is null)
+        {
+            return null;
+        }
+        
+        const string pattern = @"(\d+)\s+сезон\s+(\d+)\s+серия";
+
+        #pragma warning disable SYSLIB1045
+        var match = Regex.Match(input, pattern);
+        #pragma warning restore SYSLIB1045
+        
+        if (match.Success)
+        {
+            return new SheduleEpisodeNumber(
+                int.Parse(match.Groups[1].Value), 
+                int.Parse(match.Groups[2].Value)
+            );
+        }
+
+        return null;
+    }
+    
+    private static DateOnly? ParseReleaseDate(string? input)
+    {
+        if (input is null)
+        {
+            return null;
+        }
+        
+        const string pattern = @"\w+, (\d{2}.\d{2}.\d{4})";
+
+        #pragma warning disable SYSLIB1045
+        var match = Regex.Match(input, pattern);
+        #pragma warning restore SYSLIB1045
+        
+        // ReSharper disable once InvertIf
+        if (match.Success)
+        {
+            var dateString = match.Groups[1].Value;
+            
+            if (DateOnly.TryParseExact(dateString, "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
+            {
+                return result;
+            }
+        }
+
+        return null;
+    }
+}
+#endregion

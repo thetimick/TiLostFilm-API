@@ -1,6 +1,7 @@
 ﻿namespace TiLostFilm.Entities.Shedule;
 
 public record SheduleEntity(
+    DateTime LastUpdate,
     SheduleData? Data
 );
 
@@ -17,7 +18,7 @@ public record SheduleDataItem(
     SheduleSerialTitle? Title,
     SheduleEpisodeNumber? EpisodeNumber,
     SheduleEpisodeTitle? EpisodeTitle,
-    string? ReleaseDate
+    DateOnly? ReleaseDate
 );
 
 public record SheduleSerialTitle(

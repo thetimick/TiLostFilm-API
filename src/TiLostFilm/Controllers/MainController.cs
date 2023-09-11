@@ -8,7 +8,7 @@ namespace TiLostFilm.Controllers;
 [ApiController]
 [Route("[controller]")]
 [Produces("application/json")]
-public class MainController: ControllerBase
+class MainController: ControllerBase
 {
     private readonly ILogger<MainController> _logger;
     private readonly MainService _mainService;

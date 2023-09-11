@@ -22,6 +22,18 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policyBuilder =>
+    {
+        policyBuilder
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .SetIsOriginAllowed(_ => true);
+    });
+});
+
 builder.Services.AddSingleton<DataBase>();
 
 builder.Services.AddSingleton<ContentService>();
@@ -29,15 +41,27 @@ builder.Services.AddSingleton<EpisodeService>();
 builder.Services.AddSingleton<MainService>();
 builder.Services.AddSingleton<SheduleService>();
 
+/* ======= [ Main ] ======= */
+
+// Build APP
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Cors
+app.UseCors("CorsPolicy");
 
-app.UseHttpsRedirection();
-app.UseAuthorization();
+app.UseRouting();
 app.MapControllers();
+
+app.MapGet("/", () => "TiLostFilm API\nSwagger: /swagger");
+
+// Swagger
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "TiWeWatch - API V1");
+    c.SwaggerEndpoint("/swagger/v2/swagger.json", "TiWeWatch - API V2");
+});
+      
 app.Run();
+
+/* ======= [ Main ] ======= */
