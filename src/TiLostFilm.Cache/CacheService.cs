@@ -18,9 +18,17 @@ public class CacheService
         var entityFromDataBase = _db.CacheEntity
             .ToList()
             .FirstOrDefault(entity => entity.Url == url);
-        
-        if (entityFromDataBase != null && (DateTime.Now - DateTime.Parse(entityFromDataBase.TimeStamp)).TotalMinutes <= 5)
-            return entityFromDataBase;
+
+        if (entityFromDataBase != null)
+        {
+            var totalMinutes = (DateTime.Now - DateTime.Parse(entityFromDataBase.TimeStamp, CultureInfo.CurrentCulture))
+                .TotalMinutes;
+            
+            if (Enumerable.Range(0, 5).Contains(Convert.ToInt32(totalMinutes)))
+            {
+                return entityFromDataBase;
+            }
+        }
         
         var source = await WebService.LoadAsync(url);
         return await SaveAsync(url, source);
@@ -35,14 +43,14 @@ public class CacheService
         if (entityFromCache != null)
         {
             entityFromCache.Source = source;
-            entityFromCache.TimeStamp = DateTime.Now.ToUniversalTime().ToString(CultureInfo.InvariantCulture);
+            entityFromCache.TimeStamp = DateTime.Now.ToString(CultureInfo.CurrentCulture);
             
             _db.CacheEntity.Update(entityFromCache);
             await _db.SaveChangesAsync();
             return entityFromCache;
         }
         
-        var entity = new CacheEntity(source, url, DateTime.Now.ToUniversalTime().ToString(CultureInfo.InvariantCulture));
+        var entity = new CacheEntity(source, url, DateTime.Now.ToString(CultureInfo.CurrentCulture));
         await _db.CacheEntity.AddAsync(entity);
         await _db.SaveChangesAsync();
         return entity;

@@ -25,7 +25,6 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "applicationUrl": "https://localhost:7151;http://localhost:5080",
-      "workingDirectory": "C:\\Users\\Timick\\Documents\\SublimeMerge\\TiLostFilm-Backand\\src\\TiLostFilm\\bin\\Debug\\net8.0",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
