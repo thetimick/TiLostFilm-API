@@ -1,8 +1,13 @@
 ﻿namespace TiLostFilm.Entities.Shedule;
 
 public record SheduleEntity(
-    DateTime LastUpdate,
+    SheduleMeta? Meta,
     SheduleData? Data
+);
+
+public record SheduleMeta(
+    string Url,
+    DateTime TimeStamp
 );
 
 public record SheduleData(

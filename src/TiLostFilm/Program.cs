@@ -1,5 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using TiLostFilm.DataBase;
+using TiLostFilm.Cache;
+using TiLostFilm.Cache.Context;
 using TiLostFirm.Parser;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,34 +36,26 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddSingleton<DataBase>();
+builder.Services.AddDbContext<CacheContext>(
+    option => option.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
 
-builder.Services.AddSingleton<ContentService>();
-builder.Services.AddSingleton<EpisodeService>();
-builder.Services.AddSingleton<MainService>();
-builder.Services.AddSingleton<SheduleService>();
+builder.Services.AddTransient<CacheService>();
 
-/* ======= [ Main ] ======= */
+builder.Services.AddTransient<ContentService>();
+builder.Services.AddTransient<EpisodeService>();
+builder.Services.AddTransient<MainService>();
+builder.Services.AddTransient<SheduleService>();
 
-// Build APP
 var app = builder.Build();
 
-// Cors
 app.UseCors("CorsPolicy");
-
 app.UseRouting();
 app.MapControllers();
-
 app.MapGet("/", () => "TiLostFilm API\nSwagger: /swagger");
 
-// Swagger
+app.UseDeveloperExceptionPage();
 app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "TiWeWatch - API V1");
-    c.SwaggerEndpoint("/swagger/v2/swagger.json", "TiWeWatch - API V2");
-});
+app.UseSwaggerUI();
       
 app.Run();
-
-/* ======= [ Main ] ======= */

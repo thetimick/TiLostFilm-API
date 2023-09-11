@@ -2,10 +2,9 @@
 using System.Text.RegularExpressions;
 using AngleSharp;
 using AngleSharp.Dom;
-using AngleSharp.Io;
 using Ardalis.GuardClauses;
 using Microsoft.Extensions.Logging;
-using TiLostFilm.DataBase;
+using TiLostFilm.Cache;
 using TiLostFilm.Entities.Shedule;
 using TiLostFirm.Preferences;
 
@@ -15,6 +14,7 @@ public partial class SheduleService
 {
     private static class Paths
     {
+        public const string Url = Prefs.BaseUrl + "/schedule/my_0/type_0";
         public const string Body = "#left-pane > div > div.content > div > table > tbody";    
     } 
 }
@@ -22,23 +22,25 @@ public partial class SheduleService
 public partial class SheduleService
 {
     private readonly ILogger<SheduleService> _logger;
-    private readonly DataBase _db;
+    private readonly CacheService _cacheService;
 
-    public SheduleService(ILogger<SheduleService> logger, DataBase db)
+    public SheduleService(ILogger<SheduleService> logger, CacheService cacheService)
     {
         _logger = logger;
-        _db = db;
+        _cacheService = cacheService;
     }
 
     public async Task<SheduleEntity> GetShedule()
     {
         _logger.LogInformation("GetShedule");
 
-        var data = await _db.FetchDocument(DataBase.Type.Shedule);
-        var document = await BrowsingContext.New(Configuration.Default).OpenAsync(req => req.Content(data.Content));
+        var data = await _cacheService.LoadAsync(Paths.Url);
+        Guard.Against.Null(data);
+        
+        var document = await BrowsingContext.New(Configuration.Default).OpenAsync(req => req.Content(data.Source));
         
         var entity = new SheduleEntity(
-            data.TimeStamp,
+            new SheduleMeta(data.Url, DateTime.Parse(data.TimeStamp)),
             new SheduleData(
                 new List<SheduleDataItem>(),
                 new List<SheduleDataItem>(),
