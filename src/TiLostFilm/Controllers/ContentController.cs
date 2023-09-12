@@ -109,4 +109,25 @@ public class ContentController: ControllerBase
             return new BadRequestObjectResult(new ErrorEntity(StatusCodes.Status400BadRequest, ex.Message));
         }
     }
+
+    /// <summary>
+    /// Детальное представление Контента
+    /// </summary>
+    /// <param name="url">Путь БЕЗ BaseURL (/serials/...)</param>
+    /// <returns></returns>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorEntity))]
+    [HttpGet("Detail")]
+    public async Task<ActionResult<ContentDetailEntity>> GetDetail([Required] string url)
+    {
+        try
+        {
+            return await _contentService.ObtainDetail(url);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Error: {ExMessage}", ex.Message);
+            return new BadRequestObjectResult(new ErrorEntity(StatusCodes.Status400BadRequest, ex.Message));
+        }
+    }
 }

@@ -1,4 +1,5 @@
-﻿using AngleSharp;
+﻿using System.Globalization;
+using AngleSharp;
 using AngleSharp.Dom;
 using Ardalis.GuardClauses;
 using Microsoft.Extensions.Logging;
@@ -16,6 +17,12 @@ public partial class ContentService
 {
     private static class Paths
     {
+        public enum ContentDetailType
+        {
+            Base,
+            Photos
+        }
+        
         public static string FetchUrl(ContentType contentType)
         {
             return contentType switch
@@ -23,6 +30,16 @@ public partial class ContentService
                 ContentType.Serials => Prefs.BaseUrl + "/series",
                 ContentType.Movies => Prefs.BaseUrl + "/movies",
                 _ => throw new ArgumentOutOfRangeException(nameof(contentType), contentType, null)
+            };
+        }
+
+        public static string FetchUrlForDetail(string url, ContentDetailType type)
+        {
+            return type switch
+            {
+                ContentDetailType.Base => Prefs.BaseUrl + url,
+                ContentDetailType.Photos => Prefs.BaseUrl + url + "/photos",
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
         }
         
@@ -226,6 +243,67 @@ public partial class ContentService
         
         return entity;
     }
+
+    public async Task<ContentDetailEntity> ObtainDetail(string url)
+    {
+        _logger.LogInformation("ObtainDetail ({Url})", url);
+        
+        var data = await _cacheService.LoadAsync(Paths.FetchUrlForDetail(url, Paths.ContentDetailType.Base));
+        var dataForPhotos = await _cacheService.LoadAsync(Paths.FetchUrlForDetail(url, Paths.ContentDetailType.Photos));
+        
+        Guard.Against.Null(data);
+        Guard.Against.Null(dataForPhotos);
+        
+        var document = await BrowsingContext.New(Configuration.Default).OpenAsync(req => req.Content(data.Source));
+        var documentForPhotos = await BrowsingContext.New(Configuration.Default).OpenAsync(req => req.Content(dataForPhotos.Source));
+        
+        Guard.Against.Null(document);
+        Guard.Against.Null(documentForPhotos);
+
+        var coverBlock = document.QuerySelector("#left-pane > div > div:nth-child(5) > div.image-block > div.main_poster > img") ??
+                         document.QuerySelector("#left-pane > div:nth-child(1) > div:nth-child(6) > div.image-block > div.main_poster > img");
+
+        var entity = new ContentDetailEntity
+        {
+            Meta = new ContentDetailMeta(data.Url, DateTime.Parse(data.TimeStamp)),
+            Data = new ContentDetailData
+            {
+                Title = new ContentDetailTitle
+                {
+                    Ru = document.QuerySelector("#left-pane > div > div:nth-child(1) > div.header > h1")?.Text(),
+                    En = document.QuerySelector("#left-pane > div > div:nth-child(1) > div.header > h2")?.Text()
+                },
+                Cover = $"https:{coverBlock?.Attributes["src"]?.Value}",
+                Rating = double.Parse(
+                    document
+                        .QuerySelector(
+                            "#left-pane > div > div:nth-child(5) > div.image-block > div.overlay-pane > div.serie-mark-pane"
+                        )
+                        ?.Text() ?? "-1",
+                    CultureInfo.InvariantCulture
+                )
+            }
+        };
+
+        var photosBlock = documentForPhotos.QuerySelector("#gallery_main");
+        if (photosBlock != null)
+        {
+            entity.Data.Photos = new List<ContentDetailPhoto>();
+
+            foreach (var node in photosBlock.ChildNodes)
+            {
+                var element = node.ChildNodes.QuerySelector("img");
+                if (element is null) 
+                    continue;
+
+                var photoUrl = $"https:{element.Attributes["src"]?.Value}";
+                
+                entity.Data.Photos.Add(new ContentDetailPhoto(photoUrl, photoUrl.Replace("t_", "")));
+            }
+        }
+
+        return entity;
+    }
 }
 
 public partial class ContentService
@@ -242,7 +320,7 @@ public partial class ContentService
             var key = node.Text().Trim();
             var value = int
                 .Parse(
-                    (node as IElement) ?.Attributes["rel"]?.Value.Replace($"{replaceCharacter}_", "") ?? "-1"
+                    (node as IElement)?.Attributes["rel"]?.Value.Replace($"{replaceCharacter}_", "") ?? "-1"
                 );
             
             if (key is "" || value is -1)
