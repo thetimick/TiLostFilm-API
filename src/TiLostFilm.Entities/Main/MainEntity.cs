@@ -13,7 +13,7 @@ public record MainSerial(
     string Title,
     string TitleOrig
 );
-
+ 
 public record MainEpisode(
     string PosterUrl,
     string EpisodeNumber,

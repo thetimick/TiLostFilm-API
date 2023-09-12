@@ -7,6 +7,9 @@ using TiLostFirm.Parser;
 
 namespace TiLostFilm.Controllers;
 
+/// <summary>
+/// Расписание
+/// </summary>
 [ApiController]
 [Route("[controller]")]
 [Produces("application/json")]
@@ -15,12 +18,17 @@ public class SheduleController: ControllerBase
     private readonly ILogger<SheduleController> _logger;
     private readonly SheduleService _sheduleService;
 
+
+    /// <inheritdoc />
     public SheduleController(ILogger<SheduleController> logger, SheduleService sheduleService)
     {
         _logger = logger;
         _sheduleService = sheduleService;
     }
     
+    /// <summary>
+    /// Расписание
+    /// </summary>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorEntity))]
     [HttpGet]

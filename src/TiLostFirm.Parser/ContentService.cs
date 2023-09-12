@@ -53,6 +53,7 @@ public partial class ContentService
     
     public async Task<ContentEntity> ObtainSerials(
         int offset, 
+        int? sort = null,
         int? genre = null,
         int? year = null,
         int? channel = null,
@@ -67,6 +68,9 @@ public partial class ContentService
         request.AddOrUpdateParameter("type", "search", ParameterType.GetOrPost);
         request.AddOrUpdateParameter("o", offset.ToString(), ParameterType.GetOrPost);
 
+        if (sort != null)
+            request.AddOrUpdateParameter("s", sort, ParameterType.GetOrPost);
+        
         if (genre != null)
             request.AddOrUpdateParameter("g", genre, ParameterType.GetOrPost);
         
@@ -110,6 +114,7 @@ public partial class ContentService
 
     public async Task<ContentEntity> ObtainMovies(
         int offset, 
+        int? sort = null,
         int? genre = null,
         int? year = null,
         int? type = null,
@@ -122,6 +127,9 @@ public partial class ContentService
         request.AddOrUpdateParameter("act", "movies", ParameterType.GetOrPost);
         request.AddOrUpdateParameter("type", "search", ParameterType.GetOrPost);
         request.AddOrUpdateParameter("o", offset.ToString(), ParameterType.GetOrPost);
+        
+        if (sort != null)
+            request.AddOrUpdateParameter("s", sort, ParameterType.GetOrPost);
         
         if (genre != null)
             request.AddOrUpdateParameter("g", genre, ParameterType.GetOrPost);
