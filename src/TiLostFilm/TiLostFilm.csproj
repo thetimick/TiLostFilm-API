@@ -6,6 +6,9 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>latest</LangVersion>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <Company>the_timick</Company>
+        <AssemblyVersion>1.0</AssemblyVersion>
+        <FileVersion>1.0</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>
