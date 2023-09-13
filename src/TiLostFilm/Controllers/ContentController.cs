@@ -91,29 +91,9 @@ public class ContentController: ControllerBase
     }
     
     /// <summary>
-    /// Фильтры
+    /// Деталка
     /// </summary>
-    /// <param name="type">Для Сериалов / Для Фильмов</param>
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorEntity))]
-    [HttpGet("Filters")]
-    public async Task<ActionResult<ContentFiltersEntity>> GetFilters([Required] ContentType type)
-    {
-        try
-        {
-            return await _contentService.ObtainFilters(type);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Error: {ExMessage}", ex.Message);
-            return new BadRequestObjectResult(new ErrorEntity(StatusCodes.Status400BadRequest, ex.Message));
-        }
-    }
-
-    /// <summary>
-    /// Детальное представление Контента
-    /// </summary>
-    /// <param name="url">Путь БЕЗ BaseURL (/serials/...)</param>
+    /// <param name="url">Путь (Без BaseURL (/serials/...))</param>
     /// <returns></returns>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorEntity))]

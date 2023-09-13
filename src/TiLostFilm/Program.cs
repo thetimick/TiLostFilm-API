@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
@@ -15,20 +16,17 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "TiLostFilm - API",
-        Description = "API для проекта TiLostFilm",
-        Version = "1.0",
-        Contact = new OpenApiContact
-        {
-            Name = "TheTimickRus",
-            Url = new Uri("https://github.com/TheTimickRus")
-        }
-    });
+    var apiVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "-";
     
-    var filePath = Path.Combine(AppContext.BaseDirectory, "TiLostFilm.xml");
-    options.IncludeXmlComments(filePath);
+    options.SwaggerDoc(
+        "v1", 
+        new OpenApiInfo 
+        {
+            Title = $"TiLostFilm - API (v.{apiVersion})"
+        }
+    );
+    
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "TiLostFilm.xml"));
 });
 
 builder.Services.AddSwaggerGenNewtonsoftSupport();

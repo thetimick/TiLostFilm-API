@@ -1,5 +1,7 @@
 ﻿namespace TiLostFilm.Entities.Content;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 public record ContentEntity
 {
     public List<ContentData>? Data { get; set; }
@@ -13,6 +15,8 @@ public record ContentData
     public string? Year { get; set; }
     public string? Link { get; set; }
     public string? Cover { get; set; }
+    public string? Genres { get; set; }
+    public string? Channels { get; set; }
 }
 
 public record ContentTitle

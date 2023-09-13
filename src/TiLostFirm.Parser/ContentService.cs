@@ -7,7 +7,6 @@ using RestSharp;
 using RestSharp.Serializers.NewtonsoftJson;
 using TiLostFilm.Cache;
 using TiLostFilm.Entities.Content;
-using TiLostFirm.Preferences;
 
 using ContentType = TiLostFilm.Entities.Content.ContentType;
 
@@ -23,22 +22,22 @@ public partial class ContentService
             Photos
         }
         
-        public static string FetchUrl(ContentType contentType)
+        public static string FetchUrl(string baseUrl, ContentType contentType)
         {
             return contentType switch
             {
-                ContentType.Serials => Prefs.BaseUrl + "/series",
-                ContentType.Movies => Prefs.BaseUrl + "/movies",
+                ContentType.Serials => baseUrl + "/series",
+                ContentType.Movies => baseUrl + "/movies",
                 _ => throw new ArgumentOutOfRangeException(nameof(contentType), contentType, null)
             };
         }
 
-        public static string FetchUrlForDetail(string url, ContentDetailType type)
+        public static string FetchUrlForDetail(string baseUrl, string url, ContentDetailType type)
         {
             return type switch
             {
-                ContentDetailType.Base => Prefs.BaseUrl + url,
-                ContentDetailType.Photos => Prefs.BaseUrl + url + "/photos",
+                ContentDetailType.Base => baseUrl + url,
+                ContentDetailType.Photos => baseUrl + url + "/photos",
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
         }
@@ -58,14 +57,14 @@ public partial class ContentService
 {
     private readonly ILogger<ContentService> _logger;
     private readonly CacheService _cacheService;
-    private readonly RestClient _client = new(
-        configureSerialization: s => s.UseNewtonsoftJson()
-    );
+    private readonly RestClient _client = new(configureSerialization: s => s.UseNewtonsoftJson());
+    private readonly string _baseUrl;
 
-    public ContentService(ILogger<ContentService> logger, CacheService cacheService)
+    public ContentService(Microsoft.Extensions.Configuration.IConfiguration configuration, ILogger<ContentService> logger, CacheService cacheService)
     {
         _logger = logger;
         _cacheService = cacheService;
+        _baseUrl = configuration["App:BaseUrl"] ?? "";
     }
     
     public async Task<ContentEntity> ObtainSerials(
@@ -79,7 +78,7 @@ public partial class ContentService
     ) {
         _logger.LogInformation("ObtainSerials");
         
-        var request = new RestRequest(new Uri(Prefs.BaseUrl + "/ajaxik.php"), Method.Post);
+        var request = new RestRequest(new Uri(_baseUrl + "/ajaxik.php"), Method.Post);
         
         request.AddOrUpdateParameter("act", "serial", ParameterType.GetOrPost);
         request.AddOrUpdateParameter("type", "search", ParameterType.GetOrPost);
@@ -122,7 +121,9 @@ public partial class ContentService
                         Rating = data.Rating,
                         Year = data.Date?.ToString(),
                         Link = data.Link,
-                        Cover = $"https:{data.Img}"
+                        Cover = $"https:{data.Img}",
+                        Genres = data.Genres,
+                        Channels = data.Channels
                     }
                 ) ?? new List<ContentData>()
             )
@@ -139,7 +140,7 @@ public partial class ContentService
     ) {
         _logger.LogInformation("ObtainMovies");
         
-        var request = new RestRequest(new Uri(Prefs.BaseUrl + "/ajaxik.php"), Method.Post);
+        var request = new RestRequest(new Uri(_baseUrl + "/ajaxik.php"), Method.Post);
         
         request.AddOrUpdateParameter("act", "movies", ParameterType.GetOrPost);
         request.AddOrUpdateParameter("type", "search", ParameterType.GetOrPost);
@@ -179,7 +180,9 @@ public partial class ContentService
                         Rating = data.Rating,
                         Year = data.Date?.ToString(),
                         Link = data.Link,
-                        Cover = $"https:{data.Img}"
+                        Cover = $"https:{data.Img}",
+                        Genres = data.Genres,
+                        Channels = data.Channels
                     }
                 ) ?? new List<ContentData>()
             )
@@ -190,7 +193,7 @@ public partial class ContentService
     {
         _logger.LogInformation("ObtainFilters");
         
-        var data = await _cacheService.LoadAsync(Paths.FetchUrl(contentType));
+        var data = await _cacheService.LoadAsync(Paths.FetchUrl(_baseUrl, contentType));
         Guard.Against.Null(data);
         
         var document = await BrowsingContext.New(Configuration.Default).OpenAsync(req => req.Content(data.Source));
@@ -248,8 +251,8 @@ public partial class ContentService
     {
         _logger.LogInformation("ObtainDetail ({Url})", url);
         
-        var data = await _cacheService.LoadAsync(Paths.FetchUrlForDetail(url, Paths.ContentDetailType.Base));
-        var dataForPhotos = await _cacheService.LoadAsync(Paths.FetchUrlForDetail(url, Paths.ContentDetailType.Photos));
+        var data = await _cacheService.LoadAsync(Paths.FetchUrlForDetail(_baseUrl, url, Paths.ContentDetailType.Base));
+        var dataForPhotos = await _cacheService.LoadAsync(Paths.FetchUrlForDetail(_baseUrl, url, Paths.ContentDetailType.Photos));
         
         Guard.Against.Null(data);
         Guard.Against.Null(dataForPhotos);
