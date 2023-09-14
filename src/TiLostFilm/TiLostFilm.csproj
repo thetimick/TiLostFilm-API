@@ -23,6 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\TiLostFilm.Auth\TiLostFilm.Auth.csproj" />
       <ProjectReference Include="..\TiLostFilm.Entities\TiLostFilm.Entities.csproj" />
       <ProjectReference Include="..\TiLostFirm.Parser\TiLostFirm.Parser.csproj" />
     </ItemGroup>

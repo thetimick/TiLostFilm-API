@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TiLostFilm.Entities.Cache;
 
-namespace TiLostFilm.Cache.Context;
+namespace TiLostFilm.Cache;
 
 public sealed class CacheContext: DbContext
 {

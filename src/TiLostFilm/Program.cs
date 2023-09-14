@@ -1,9 +1,13 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
+using TiLostFilm.Auth;
 using TiLostFilm.Cache;
-using TiLostFilm.Cache.Context;
 using TiLostFirm.Parser;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +31,9 @@ builder.Services.AddSwaggerGen(options =>
     );
     
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "TiLostFilm.xml"));
+    
+    options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme());
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement());
 });
 
 builder.Services.AddSwaggerGenNewtonsoftSupport();
@@ -43,9 +50,47 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Auth
+
+builder.Services
+    .AddDbContext<AuthContext>(
+        option => option.UseSqlite(builder.Configuration.GetConnectionString("AuthDataBaseConnection"))
+    );
+
+builder.Services
+    .AddAuthentication(
+        options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }
+    )
+    .AddJwtBearer();
+
+builder.Services
+    .AddAuthorization(
+        options =>
+        {
+            options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
+                .RequireAuthenticatedUser()
+                .Build();
+        }
+    );
+
+builder.Services
+    .AddIdentity<IdentityUser<long>, IdentityRole<long>>()
+    .AddEntityFrameworkStores<AuthContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddTransient<AuthService>();
+
+// Cache
+
 builder.Services.AddDbContext<CacheContext>(
-    option => option.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
+    option => option.UseSqlite(builder.Configuration.GetConnectionString("CacheDataBaseConnection"))
 );
+
+// Services
 
 builder.Services.AddTransient<CacheService>();
 
@@ -59,6 +104,9 @@ var app = builder.Build();
 app.UseCors("CorsPolicy");
 app.UseRouting();
 app.MapControllers();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Swagger
 app.UseDeveloperExceptionPage();
