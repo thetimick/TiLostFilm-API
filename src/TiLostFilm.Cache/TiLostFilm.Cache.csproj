@@ -4,20 +4,17 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <Company>the_timick</Company>
+        <AssemblyVersion>1.0</AssemblyVersion>
+        <FileVersion>1.0</FileVersion>
     </PropertyGroup>
-
-
+    
     <ItemGroup>
       <PackageReference Include="AngleSharp" Version="1.0.4" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.10" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.10" />
     </ItemGroup>
-
-
-
-
-
-
+    
     <ItemGroup>
       <ProjectReference Include="..\TiLostFilm.Entities\TiLostFilm.Entities.csproj" />
     </ItemGroup>

@@ -5,13 +5,19 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>latest</LangVersion>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <Company>the_timick</Company>
+        <AssemblyVersion>1.0</AssemblyVersion>
+        <FileVersion>1.0</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.10" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0-rc.1.23421.29" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.10" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.10" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="6.5.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" Version="6.5.0" />
     </ItemGroup>
 
     <ItemGroup>

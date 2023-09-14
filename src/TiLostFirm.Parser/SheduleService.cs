@@ -6,7 +6,6 @@ using Ardalis.GuardClauses;
 using Microsoft.Extensions.Logging;
 using TiLostFilm.Cache;
 using TiLostFilm.Entities.Shedule;
-using TiLostFirm.Preferences;
 
 namespace TiLostFirm.Parser;
 
@@ -14,7 +13,6 @@ public partial class SheduleService
 {
     private static class Paths
     {
-        public const string Url = Prefs.BaseUrl + "/schedule/my_0/type_0";
         public const string Body = "#left-pane > div > div.content > div > table > tbody";    
     } 
 }
@@ -23,18 +21,20 @@ public partial class SheduleService
 {
     private readonly ILogger<SheduleService> _logger;
     private readonly CacheService _cacheService;
-
-    public SheduleService(ILogger<SheduleService> logger, CacheService cacheService)
+    private readonly string _baseUrl;
+    
+    public SheduleService(Microsoft.Extensions.Configuration.IConfiguration configuration, ILogger<SheduleService> logger, CacheService cacheService)
     {
         _logger = logger;
         _cacheService = cacheService;
+        _baseUrl = configuration["App:BaseUrl"] ?? "";
     }
 
     public async Task<SheduleEntity> GetShedule()
     {
         _logger.LogInformation("GetShedule");
 
-        var data = await _cacheService.LoadAsync(Paths.Url);
+        var data = await _cacheService.LoadAsync(_baseUrl + "/schedule/my_0/type_0");
         Guard.Against.Null(data);
         
         var document = await BrowsingContext.New(Configuration.Default).OpenAsync(req => req.Content(data.Source));
