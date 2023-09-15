@@ -4,11 +4,20 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
         <Company>the_timick</Company>
         <AssemblyVersion>1.0</AssemblyVersion>
         <FileVersion>1.0</FileVersion>
     </PropertyGroup>
-    
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+	
     <ItemGroup>
       <PackageReference Include="AngleSharp" Version="1.0.4" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.10" />

@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using TiLostFilm.Auth;
+using TiLostFilm.Auth.Entities;
 using TiLostFilm.Cache;
 using TiLostFirm.Parser;
 
@@ -63,6 +63,7 @@ builder.Services
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         }
     )
     .AddJwtBearer();
@@ -78,11 +79,12 @@ builder.Services
     );
 
 builder.Services
-    .AddIdentity<IdentityUser<long>, IdentityRole<long>>()
+    .AddIdentity<AuthUser, IdentityRole<long>>()
     .AddEntityFrameworkStores<AuthContext>()
     .AddDefaultTokenProviders();
 
 builder.Services.AddTransient<AuthService>();
+builder.Services.AddTransient<TokenService>();
 
 // Cache
 
@@ -91,12 +93,9 @@ builder.Services.AddDbContext<CacheContext>(
 );
 
 // Services
-
 builder.Services.AddTransient<CacheService>();
 
 builder.Services.AddTransient<ContentService>();
-builder.Services.AddTransient<EpisodeService>();
-builder.Services.AddTransient<MainService>();
 builder.Services.AddTransient<SheduleService>();
 
 var app = builder.Build();
@@ -112,13 +111,11 @@ app.UseAuthorization();
 app.UseDeveloperExceptionPage();
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseReDoc(c =>
-{
-    c.RoutePrefix = "redoc";
-});
-app.UseEndpoints(endpoints =>
-{
-    endpoints.Map("/", context => Task.Run(() => context.Response.Redirect("/swagger")));
-});
-
+app.UseReDoc(
+    options =>
+    {
+        options.RoutePrefix = "redoc";
+    }
+);
+app.MapGet("/", context => Task.Run(() => context.Response.Redirect("/swagger")));
 app.Run();
