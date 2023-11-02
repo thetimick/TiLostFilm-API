@@ -22,7 +22,7 @@ public record SheduleDataItem(
     string? Cover,
     SheduleSerialTitle? Title,
     SheduleEpisodeNumber? EpisodeNumber,
-    SheduleEpisodeTitle? EpisodeTitle,
+    string? EpisodeTitle,
     DateOnly? ReleaseDate
 );
 

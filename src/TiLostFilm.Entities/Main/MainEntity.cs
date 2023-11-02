@@ -2,26 +2,37 @@
 
 // ReSharper disable ClassNeverInstantiated.Global
 
-public record MainEntity(
-    List<MainSerial> NewSerials,
-    List<MainEpisode> NewEpisodes,
-    List<MainSeason> NewSeasons
+public record MainEntity
+{
+    public List<MainMeta>? Meta { get; set; }
+    public MainData? Data { get; set; }
+}
+
+public record MainMeta(
+    string? Url,
+    DateTime? TimeStamp
 );
 
-public record MainSerial(
-    string PosterUrl,
-    string Title,
-    string TitleOrig
-);
- 
-public record MainEpisode(
-    string PosterUrl,
-    string EpisodeNumber,
-    string DateRelease
+public record MainData(
+    List<MainNews>? News,
+    List<MainVideo>? Video
 );
 
-public record MainSeason(
-    string PosterUrl,
-    string SeasonNumber,
-    string DateRelease
+public record MainNews(
+    string? PosterUrl,
+    string? Title,
+    string? Description,
+    string? Date
+);
+
+public record MainVideo(
+    string? PosterUrl,
+    List<MainVideoUrl>? VideoUrl,
+    string? Title,
+    string? Description
+);
+
+public record MainVideoUrl(
+    string? Quality,
+    string? Url
 );

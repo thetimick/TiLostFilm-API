@@ -70,11 +70,11 @@ public partial class ContentService
     public async Task<ContentEntity> ObtainSerials(
         int offset, 
         int? sort = null,
-        int? genre = null,
-        int? year = null,
-        int? channel = null,
-        int? type = null,
-        int? country = null
+        List<int>? genre = null,
+        List<int>? year = null,
+        List<int>? channel = null,
+        List<int>? type = null,
+        List<int>? country = null
     ) {
         _logger.LogInformation("ObtainSerials");
         
@@ -88,19 +88,19 @@ public partial class ContentService
             request.AddOrUpdateParameter("s", sort, ParameterType.GetOrPost);
         
         if (genre != null)
-            request.AddOrUpdateParameter("g", genre, ParameterType.GetOrPost);
+            request.AddOrUpdateParameter("g", string.Join(',', genre), ParameterType.GetOrPost);
         
         if (year != null)
-            request.AddOrUpdateParameter("y", year, ParameterType.GetOrPost);
+            request.AddOrUpdateParameter("y", string.Join(',', year), ParameterType.GetOrPost);
         
         if (channel != null)
-            request.AddOrUpdateParameter("c", channel, ParameterType.GetOrPost);
+            request.AddOrUpdateParameter("c", string.Join(',', channel), ParameterType.GetOrPost);
         
         if (type != null)
-            request.AddOrUpdateParameter("r", type, ParameterType.GetOrPost);
+            request.AddOrUpdateParameter("r", string.Join(',', type), ParameterType.GetOrPost);
         
         if (country != null)
-            request.AddOrUpdateParameter("cntr", country, ParameterType.GetOrPost);
+            request.AddOrUpdateParameter("cntr", string.Join(',', country), ParameterType.GetOrPost);
         
         request.AddHeader("referer", "https://www.lostfilm.today/serial/?type=search");
         
@@ -133,10 +133,10 @@ public partial class ContentService
     public async Task<ContentEntity> ObtainMovies(
         int offset, 
         int? sort = null,
-        int? genre = null,
-        int? year = null,
-        int? type = null,
-        int? country = null
+        List<int>? genre = null,
+        List<int>? year = null,
+        List<int>? type = null,
+        List<int>? country = null
     ) {
         _logger.LogInformation("ObtainMovies");
         
@@ -150,16 +150,16 @@ public partial class ContentService
             request.AddOrUpdateParameter("s", sort, ParameterType.GetOrPost);
         
         if (genre != null)
-            request.AddOrUpdateParameter("g", genre, ParameterType.GetOrPost);
+            request.AddOrUpdateParameter("g", string.Join(',', genre), ParameterType.GetOrPost);
         
         if (year != null)
-            request.AddOrUpdateParameter("y", year, ParameterType.GetOrPost);
+            request.AddOrUpdateParameter("y", string.Join(',', year), ParameterType.GetOrPost);
         
         if (type != null)
-            request.AddOrUpdateParameter("r", type, ParameterType.GetOrPost);
+            request.AddOrUpdateParameter("r", string.Join(',', type), ParameterType.GetOrPost);
         
         if (country != null)
-            request.AddOrUpdateParameter("cntr", country, ParameterType.GetOrPost);
+            request.AddOrUpdateParameter("cntr", string.Join(',', country), ParameterType.GetOrPost);
         
         request.AddHeader("referer", "https://www.lostfilm.today/movies/?type=search");
         
@@ -289,20 +289,20 @@ public partial class ContentService
         };
 
         var photosBlock = documentForPhotos.QuerySelector("#gallery_main");
-        if (photosBlock != null)
+        if (photosBlock is null) 
+            return entity;
+        
+        entity.Data.Photos = new List<ContentDetailPhoto>();
+
+        foreach (var node in photosBlock.ChildNodes)
         {
-            entity.Data.Photos = new List<ContentDetailPhoto>();
+            var element = node.ChildNodes.QuerySelector("img");
+            if (element is null) 
+                continue;
 
-            foreach (var node in photosBlock.ChildNodes)
-            {
-                var element = node.ChildNodes.QuerySelector("img");
-                if (element is null) 
-                    continue;
-
-                var photoUrl = $"https:{element.Attributes["src"]?.Value}";
+            var photoUrl = $"https:{element.Attributes["src"]?.Value}";
                 
-                entity.Data.Photos.Add(new ContentDetailPhoto(photoUrl, photoUrl.Replace("t_", "")));
-            }
+            entity.Data.Photos.Add(new ContentDetailPhoto(photoUrl, photoUrl.Replace("t_", "")));
         }
 
         return entity;
