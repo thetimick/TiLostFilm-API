@@ -41,11 +41,11 @@ public class ContentController: ControllerBase
     public async Task<ActionResult<ContentEntity>> GetSerials(
         int offset = 0, 
         ContentSort sort = ContentSort.Novelty,
-        [FromQuery] List<int>? genre = null,
-        [FromQuery] List<int>? year = null,
-        [FromQuery] List<int>? channel = null,
-        [FromQuery] List<int>? type = null,
-        [FromQuery] List<int>? country = null
+        [FromQuery(Name = "genre[]")] List<int>? genre = null,
+        [FromQuery(Name = "year[]")] List<int>? year = null,
+        [FromQuery(Name = "channel[]")] List<int>? channel = null,
+        [FromQuery(Name = "type[]")] List<int>? type = null,
+        [FromQuery(Name = "country[]")] List<int>? country = null
     ) {
         try
         {
@@ -74,10 +74,10 @@ public class ContentController: ControllerBase
     public async Task<ActionResult<ContentEntity>> GetMovies(
         int offset = 0, 
         ContentSort sort = ContentSort.Novelty,
-        [FromQuery] List<int>? genre = null,
-        [FromQuery] List<int>? year = null,
-        [FromQuery] List<int>? type = null,
-        [FromQuery] List<int>? country = null
+        [FromQuery(Name = "genre[]")] List<int>? genre = null,
+        [FromQuery(Name = "year[]")] List<int>? year = null,
+        [FromQuery(Name = "type[]")] List<int>? type = null,
+        [FromQuery(Name = "country[]")] List<int>? country = null
     ) {
         try
         {
