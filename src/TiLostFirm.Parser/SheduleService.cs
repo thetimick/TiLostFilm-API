@@ -37,7 +37,9 @@ public partial class SheduleService
         var data = await _cacheService.LoadAsync(_baseUrl + "/schedule/my_0/type_0");
         Guard.Against.Null(data);
         
-        var document = await BrowsingContext.New(Configuration.Default).OpenAsync(req => req.Content(data.Source));
+        var document = await BrowsingContext
+            .New(Configuration.Default)
+            .OpenAsync(req => req.Content(data.Source));
         
         var entity = new SheduleEntity(
             new SheduleMeta(data.Url, DateTime.Parse(data.TimeStamp)),
@@ -122,7 +124,7 @@ public partial class SheduleService
             $"https:{cover}",
             new SheduleSerialTitle(titleRu, titleEn),
             ParseEpisodeNumber(episodeNumber),
-            new SheduleEpisodeTitle(null, episodeTitleEn),
+            episodeTitleEn,
             ParseReleaseDate(releaseDate)
         );
     }

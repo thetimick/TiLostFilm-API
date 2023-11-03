@@ -5,20 +5,28 @@ using TiLostFirm.Parser;
 
 namespace TiLostFilm.Controllers;
 
+/// <summary>
+/// Главная
+/// </summary>
 [ApiController]
 [Route("[controller]")]
 [Produces("application/json")]
-class MainController: ControllerBase
+public class MainController: ControllerBase
 {
     private readonly ILogger<MainController> _logger;
     private readonly MainService _mainService;
 
+    /// <inheritdoc />
     public MainController(ILogger<MainController> logger, MainService mainService)
     {
         _logger = logger;
         _mainService = mainService;
     }
 
+    /// <summary>
+    /// Главная
+    /// </summary>
+    /// <returns></returns>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorEntity))]
     [HttpGet]
